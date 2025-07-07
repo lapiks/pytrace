@@ -1,13 +1,18 @@
 import taichi as ti
 
-ti.init()
+ti.init(arch=ti.gpu)
 
-pixels = ti.field(ti.u8, shape=(512, 512, 3))
+image_width, image_height = 256, 256
+pixels = ti.Vector.field(n=3, dtype=float, shape=(image_width, image_height))
 
 @ti.kernel
 def set_pixels():
-    for i, j, k in pixels:
-        pixels[i, j, k] = ti.random() * 255
+    for i, j in pixels:
+        pixels[i, j] = ti.Vector([
+            ti.random(),
+            ti.random(),
+            ti.random()
+        ])
 
 set_pixels()
 filename = f'image.png'
