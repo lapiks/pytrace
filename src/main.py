@@ -9,9 +9,9 @@ pixels = ti.Vector.field(n=3, dtype=float, shape=(image_width, image_height))
 def set_pixels():
     for i, j in pixels:
         pixels[i, j] = ti.Vector([
-            ti.random(),
-            ti.random(),
-            ti.random()
+            i / (image_width - 1),
+            j / (image_height - 1),
+            0.0
         ])
 
 set_pixels()
