@@ -2,6 +2,7 @@ from time import time
 from vec3 import *
 from color import *
 from ray import *
+import math
 import taichi as ti
 
 ti.init(arch=ti.gpu)
@@ -33,9 +34,13 @@ def hit_sphere(center, radius, ray):
     a = ray.direction.dot(ray.direction)
     b = -2.0 * ray.direction.dot(oc)
     c = oc.dot(oc) - radius*radius
-    discriminant = b*b - 4*a*c
-    return discriminant >= 0
-
+    discriminant = b*b - 4.0*a*c
+    t = 0.0
+    if discriminant < 0.0:
+        t = -1.0
+    else:
+        t = (-b - ti.sqrt(discriminant)) / (2.0*a)
+    return t
 
 @ti.func
 def background(r: Ray):
@@ -47,8 +52,10 @@ def background(r: Ray):
 @ti.func
 def ray_color(r: Ray):
     color = BLACK
-    if hit_sphere(Point3(0.0, 0.0, -1.0), 0.5, r):
-        color = RED
+    t = hit_sphere(Point3(0.0, 0.0, -1.0), 0.5, r)
+    if t > 0.0:
+        color = (r.at(t) - Vec3(0.0, 0.0, -1.0)).normalized()
+        color = 0.5 * (color + 1)
     else:
         color = background(r)
     return color
