@@ -1,3 +1,4 @@
+from time import time
 import taichi as ti
 from vec3 import *
 from color import *
@@ -48,9 +49,13 @@ pixel_delta_v = viewport_v / image_height
 viewport_upper_left = camera_center - Vec3(0.0, 0.0, focal_length) - viewport_u/2.0 - viewport_v/2.0
 pixel00_loc = viewport_upper_left + (pixel_delta_u + pixel_delta_v) * 0.5
 
+t = time()
 
+print(f"Start rendering")
 
 set_pixels()
-filename = f'image.png'
+filename = f"image.png"
 ti.tools.imwrite(pixels.to_numpy(), filename)
-print(f'The image has been saved to {filename}')
+
+print(f"Rendering finished in {time() - t:.2f} seconds")
+print(f"The image has been saved to {filename}")
