@@ -40,7 +40,7 @@ viewport_width = viewport_height * (image_width / image_height)
 camera_center = ZERO
 
 viewport_u = Vec3(viewport_width, 0.0, 0.0)
-viewport_v = Vec3(0.0, -viewport_height, 0.0)
+viewport_v = Vec3(0.0, viewport_height, 0.0)
 
 pixel_delta_u = viewport_u / image_width
 pixel_delta_v = viewport_v / image_height
