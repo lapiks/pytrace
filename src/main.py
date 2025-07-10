@@ -31,15 +31,15 @@ pixel00_loc = viewport_bottom_left + (pixel_delta_u + pixel_delta_v) * 0.5
 @ti.func
 def hit_sphere(center, radius, ray):
     oc = center - ray.origin
-    a = ray.direction.dot(ray.direction)
-    b = -2.0 * ray.direction.dot(oc)
-    c = oc.dot(oc) - radius*radius
-    discriminant = b*b - 4.0*a*c
+    a = ray.direction.norm_sqr()
+    half_b = ray.direction.dot(oc)
+    c = oc.norm_sqr() - radius*radius
+    discriminant = half_b*half_b - a*c
     t = 0.0
     if discriminant < 0.0:
         t = -1.0
     else:
-        t = (-b - ti.sqrt(discriminant)) / (2.0*a)
+        t = (half_b - ti.sqrt(discriminant)) / a
     return t
 
 @ti.func
