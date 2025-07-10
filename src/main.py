@@ -13,29 +13,6 @@ image_height = 1 if image_height < 1 else image_height
 
 pixels = ti.Vector.field(n=3, dtype=float, shape=(image_width, image_height))
 
-@ti.func
-def background(r: Ray):
-    unit_direction = r.direction.normalized()
-    # [-1, 1] -> [0, 1]
-    t = 0.5 * (unit_direction.y + 1.0)
-    return (1.0 - t) * WHITE + t * Color(0.5, 0.7, 1.0)
-
-@ti.func
-def ray_color(r: Ray):
-    return background(r)
-
-@ti.kernel
-def set_pixels():
-    for i, j in pixels:
-        pixel_center = pixel00_loc + pixel_delta_u * i + pixel_delta_v * j
-        ray_direction = pixel_center - camera_center
-
-        r = Ray(origin=camera_center, direction=ray_direction)
-
-        pixel_color = ray_color(r)
-          
-        pixels[i, j] = pixel_color
-
 focal_length = 1.0
 viewport_height = 2.0
 viewport_width = viewport_height * (image_width / image_height)
@@ -49,6 +26,43 @@ pixel_delta_v = viewport_v / image_height
 
 viewport_bottom_left = camera_center - Vec3(0.0, 0.0, focal_length) - viewport_u/2.0 - viewport_v/2.0
 pixel00_loc = viewport_bottom_left + (pixel_delta_u + pixel_delta_v) * 0.5
+
+@ti.func
+def hit_sphere(center, radius, ray):
+    oc = center - ray.origin
+    a = ray.direction.dot(ray.direction)
+    b = -2.0 * ray.direction.dot(oc)
+    c = oc.dot(oc) - radius*radius
+    discriminant = b*b - 4*a*c
+    return discriminant >= 0
+
+
+@ti.func
+def background(r: Ray):
+    unit_direction = r.direction.normalized()
+    # [-1, 1] -> [0, 1]
+    t = 0.5 * (unit_direction.y + 1.0)
+    return (1.0 - t) * WHITE + t * Color(0.5, 0.7, 1.0)
+
+@ti.func
+def ray_color(r: Ray):
+    color = BLACK
+    if hit_sphere(Point3(0.0, 0.0, -1.0), 0.5, r):
+        color = RED
+    else:
+        color = background(r)
+    return color
+
+@ti.kernel
+def set_pixels():
+    for i, j in pixels:
+        pixel_center = pixel00_loc + pixel_delta_u * i + pixel_delta_v * j
+        ray_direction = pixel_center - camera_center
+
+        r = Ray(origin=camera_center, direction=ray_direction)
+
+        pixel_color = ray_color(r)
+        pixels[i, j] = pixel_color
 
 t = time()
 
