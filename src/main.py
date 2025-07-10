@@ -7,7 +7,7 @@ import taichi as ti
 ti.init(arch=ti.gpu)
 
 aspect_ratio = 16.0 / 9.0
-image_width = 400
+image_width = 1920
 image_height = int(image_width / aspect_ratio)
 image_height = 1 if image_height < 1 else image_height
 
