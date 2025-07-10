@@ -2,6 +2,7 @@ from time import time
 from vec3 import *
 from color import *
 from ray import *
+from hittable import Sphere
 import math
 import taichi as ti
 
@@ -29,20 +30,6 @@ viewport_bottom_left = camera_center - Vec3(0.0, 0.0, focal_length) - viewport_u
 pixel00_loc = viewport_bottom_left + (pixel_delta_u + pixel_delta_v) * 0.5
 
 @ti.func
-def hit_sphere(center, radius, ray):
-    oc = center - ray.origin
-    a = ray.direction.norm_sqr()
-    half_b = ray.direction.dot(oc)
-    c = oc.norm_sqr() - radius*radius
-    discriminant = half_b*half_b - a*c
-    t = 0.0
-    if discriminant < 0.0:
-        t = -1.0
-    else:
-        t = (half_b - ti.sqrt(discriminant)) / a
-    return t
-
-@ti.func
 def background(r: Ray):
     unit_direction = r.direction.normalized()
     # [-1, 1] -> [0, 1]
@@ -52,8 +39,9 @@ def background(r: Ray):
 @ti.func
 def ray_color(r: Ray):
     color = BLACK
-    t = hit_sphere(Point3(0.0, 0.0, -1.0), 0.5, r)
-    if t > 0.0:
+    sphere = Sphere(center=Vec3(0.0, 0.0, -1.0), radius=0.5)
+    hit, t = sphere.hit(r, 0.0, 100.0)
+    if hit:
         color = (r.at(t) - Vec3(0.0, 0.0, -1.0)).normalized()
         color = 0.5 * (color + 1)
     else:
