@@ -47,8 +47,8 @@ viewport_v = Vec3(0.0, viewport_height, 0.0)
 pixel_delta_u = viewport_u / image_width
 pixel_delta_v = viewport_v / image_height
 
-viewport_upper_left = camera_center - Vec3(0.0, 0.0, focal_length) - viewport_u/2.0 - viewport_v/2.0
-pixel00_loc = viewport_upper_left + (pixel_delta_u + pixel_delta_v) * 0.5
+viewport_bottom_left = camera_center - Vec3(0.0, 0.0, focal_length) - viewport_u/2.0 - viewport_v/2.0
+pixel00_loc = viewport_bottom_left + (pixel_delta_u + pixel_delta_v) * 0.5
 
 t = time()
 
