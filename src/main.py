@@ -1,18 +1,54 @@
 import taichi as ti
+from vec3 import *
+from color import *
+from ray import *
+import color
 
 ti.init(arch=ti.gpu)
 
-image_width, image_height = 256, 256
+aspect_ratio = 16.0 / 9.0
+image_width = 400
+image_height = int(image_width / aspect_ratio)
+
 pixels = ti.Vector.field(n=3, dtype=float, shape=(image_width, image_height))
+
+@ti.func
+def background(r: Ray):
+    unit_direction = r.direction.normalized()
+    t = 0.5 * (unit_direction.y + 1.0)
+    return (1.0 - t) * WHITE + t * Color(0.5, 0.7, 1.0)
+
+@ti.func
+def ray_color(r: Ray):
+    return background(r)
 
 @ti.kernel
 def set_pixels():
     for i, j in pixels:
-        pixels[i, j] = ti.Vector([
-            i / (image_width - 1),
-            j / (image_height - 1),
-            0.0
-        ])
+        pixel_center = pixel00_loc + pixel_delta_u * i + pixel_delta_v * j
+        ray_direction = pixel_center - camera_center
+
+        r = Ray(origin=camera_center, direction=ray_direction)
+
+        pixel_color = ray_color(r)
+          
+        pixels[i, j] = pixel_color
+
+focal_length = 1.0
+viewport_height = 2.0
+viewport_width = viewport_height * (image_width / image_height)
+camera_center = ZERO
+
+viewport_u = Vec3(viewport_width, 0.0, 0.0)
+viewport_v = Vec3(0.0, -viewport_height, 0.0)
+
+pixel_delta_u = viewport_u / image_width
+pixel_delta_v = viewport_v / image_height
+
+viewport_upper_left = camera_center - Vec3(0.0, 0.0, focal_length) - viewport_u/2.0 - viewport_v/2.0
+pixel00_loc = viewport_upper_left + (pixel_delta_u + pixel_delta_v) * 0.5
+
+
 
 set_pixels()
 filename = f'image.png'
