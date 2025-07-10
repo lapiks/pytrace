@@ -1,9 +1,8 @@
 from time import time
-import taichi as ti
 from vec3 import *
 from color import *
 from ray import *
-import color
+import taichi as ti
 
 ti.init(arch=ti.gpu)
 
