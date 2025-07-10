@@ -9,12 +9,14 @@ ti.init(arch=ti.gpu)
 aspect_ratio = 16.0 / 9.0
 image_width = 400
 image_height = int(image_width / aspect_ratio)
+image_height = 1 if image_height < 1 else image_height
 
 pixels = ti.Vector.field(n=3, dtype=float, shape=(image_width, image_height))
 
 @ti.func
 def background(r: Ray):
     unit_direction = r.direction.normalized()
+    # [-1, 1] -> [0, 1]
     t = 0.5 * (unit_direction.y + 1.0)
     return (1.0 - t) * WHITE + t * Color(0.5, 0.7, 1.0)
 
