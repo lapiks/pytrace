@@ -42,8 +42,7 @@ def ray_color(r: Ray):
     sphere = Sphere(center=Vec3(0.0, 0.0, -1.0), radius=0.5)
     hit, t = sphere.hit(r, 0.0, 100.0)
     if hit:
-        color = (r.at(t) - Vec3(0.0, 0.0, -1.0)).normalized()
-        color = 0.5 * (color + 1)
+        color = sphere.normal_at(r.at(t))
     else:
         color = background(r)
     return color

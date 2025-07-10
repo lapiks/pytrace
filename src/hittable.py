@@ -26,3 +26,7 @@ class Sphere:
                     hit = False
 
         return hit, root
+    
+    @ti.func
+    def normal_at(self, point: Point3):
+        return 0.5 * ((point - self.center).normalized() + 1.0)
